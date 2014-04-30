@@ -43,18 +43,20 @@ class AuthUserMixin(object):
         active = \
             db.Column(db.Boolean(), nullable=False, index=True, default=True)
         type = db.Column(db.String(10), index=True)
+
+    You will probably want to add this too:
+
+        ## See: http://docs.sqlalchemy.org/en/rel_0_9/orm/inheritance.html
+        __mapper_args__ = {
+            'polymorphic_identity': 'user',
+            'polymorphic_on': type
+        }
     """
 
     email = None
     password = None
     active = None
     type = None
-
-    ## See: http://docs.sqlalchemy.org/en/rel_0_9/orm/inheritance.html
-    __mapper_args__ = {
-        'polymorphic_identity': 'user',
-        'polymorphic_on': type
-    }
 
     def is_authenticated(self):
         """
