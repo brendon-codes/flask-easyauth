@@ -10,9 +10,9 @@ from functools import wraps
 
 from flask import current_app
 from werkzeug.local import LocalProxy
-# pylint: disable=no-name-in-module
-from flask.ext.login import current_user
-# pylint: enable=no-name-in-module
+# pylint: disable=no-name-in-module,unused-import
+from flask.ext.login import current_user, login_required
+# pylint: enable=no-name-in-module,unused-import
 
 # pylint: disable=invalid-name
 _auth = LocalProxy(lambda: current_app.extensions['easyauth'])
