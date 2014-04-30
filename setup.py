@@ -32,6 +32,8 @@ setup(
         'Flask-Login>=0.2.9',
         'passlib>=1.6.2',
         'Flask-SQLAlchemy>=1.0',
-        'redis>=2.9.1'
+        'redis>=2.9.1',
+        'pep8>=1.5.6',
+        'pylint>=1.2.0'
     ]
 )

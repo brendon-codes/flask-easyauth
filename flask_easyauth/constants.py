@@ -4,4 +4,6 @@
 Various constants
 """
 
+from __future__ import absolute_import
+
 REQ_TOKEN_HEADER = "Authentication-Token"

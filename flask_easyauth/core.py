@@ -37,13 +37,21 @@ class Auth(object):
     user_cls = None
     token_cls = None
 
-    def __init__(self, app=None):
+    def __init__(self, app=None, db=None, user_cls=None, token_cls=None):
         """
         Constructor
         """
         self.app = app
-        if app is not None:
-            self.init_app(app)
+        self.db = db
+        self.user_cls = user_cls
+        self.token_cls = token_cls
+        if (
+            (app is not None) and
+            (db is not None) and
+            (user_cls is not None) and
+            (token_cls is not None)
+        ):
+            self.init_app(app, db, user_cls, token_cls)
         return None
 
     def init_app(self, app, db, user_cls, token_cls):

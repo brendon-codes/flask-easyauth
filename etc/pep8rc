@@ -1,0 +1,5 @@
+[pep8]
+## For some reason the "select" param does
+## not actually work, so we wont include it
+ignore = E265
+max-line-length = 80
