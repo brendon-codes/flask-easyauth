@@ -14,46 +14,45 @@ from werkzeug.local import LocalProxy
 from flask.ext.login import current_user, login_required
 # pylint: enable=no-name-in-module,unused-import
 
-from .constants import ADMIN_USER_TYPE
+from . import constants
 
 # pylint: disable=invalid-name
 _auth = LocalProxy(lambda: current_app.extensions['easyauth'])
 # pylint: enable=invalid-name
 
 
-def admin_required(*nada):
+def admin_required(func):
     """
     Ensures that user is an admin
     """
-    def wrapper(func):
+
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
         """
-        Wrapper
+        Decorated class view
         """
-        @wraps(func)
-        def decorated_view(*args, **kwargs):
-            """
-            Decorated class view
-            """
-            ## No Good
-            if (
-                (current_user.type != constants.ADMIN_USER_TYPE) and
-                (not current_user.is_authenticated())
-            ):
-                return _auth.login_manager.unauthorized()
-            ## Return success
-            return func(*args, **kwargs)
-        return decorated_view
-    return wrapper
+        ## No Good
+        if (
+            (not current_user.is_authenticated()) or
+            (not current_user.is_admin())
+        ):
+            return _auth.login_manager.unauthorized()
+        ## Return success
+        return func(*args, **kwargs)
+
+    return decorated_view
 
 
 def user_types_required(*types):
     """
     Ensures that user is of a certain type
     """
+
     def wrapper(func):
         """
         Wrapper
         """
+
         @wraps(func)
         def decorated_view(*args, **kwargs):
             """
@@ -70,5 +69,7 @@ def user_types_required(*types):
                 return _auth.login_manager.unauthorized()
             ## Return success
             return func(*args, **kwargs)
+
         return decorated_view
+
     return wrapper

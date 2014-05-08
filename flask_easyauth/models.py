@@ -58,6 +58,12 @@ class AuthUserMixin(object):
     active = None
     type = None
 
+    def is_admin(self):
+        """
+        Determines if user is an admin
+        """
+        return (self.type == "admin")
+
     def is_authenticated(self):
         """
         Is Authenticated

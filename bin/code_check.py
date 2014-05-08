@@ -38,7 +38,8 @@ PYLINT_DISABLES = [
     'superfluous-parens',
     'duplicate-code',
     'too-many-public-methods',
-    'interface-not-implemented'
+    'interface-not-implemented',
+    'star-args'
 ]
 
 
