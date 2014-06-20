@@ -116,6 +116,13 @@ class AuthUserMixin(object):
         _auth.login(self, **kwargs)
         return True
 
+    def update_password(self, password):
+        """
+        Updates password
+        """
+        self.password = self.encrypt_password(password)
+        return True
+
     def set_security_attrs(self, email, password=None, encrypted_password=None):
         """
         Creates a user and commits to db
@@ -127,7 +134,7 @@ class AuthUserMixin(object):
                 Exception(
                     "Can only supply either password or encrypted password")
         elif password is not None:
-            self.password = self.encrypt_password(password)
+            self.update_password(password)
         elif encrypted_password is not None:
             self.password = encrypted_password
         self.email = email
