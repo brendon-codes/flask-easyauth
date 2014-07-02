@@ -35,27 +35,46 @@ class AuthTokenMixin(object):
 class AuthUserMixin(object):
     """
     User Model.
-    The following should be defined
+    The following should be defined.
+    `email` and `password` do not necessarily need to be nullable. You
+    can optionally change `nullable` to False on those fields if you wish.
 
         email = \
-            db.Column(db.String(255), nullable=False, index=True, unique=True)
-        password = db.Column(db.String(255), nullable=False, index=True)
+            db.Column(db.String(255), nullable=True, index=True, unique=True)
+        password = db.Column(db.String(255), nullable=True, index=True)
         active = \
+            db.Column(db.Boolean(), nullable=False, index=True, default=True)
+        real = \
             db.Column(db.Boolean(), nullable=False, index=True, default=True)
         type = db.Column(db.String(10), index=True)
 
-    You will probably want to add this too:
+    If you are going to be using inherited models,
+    you will probably want to add this too:
 
         ## See: http://docs.sqlalchemy.org/en/rel_0_9/orm/inheritance.html
         __mapper_args__ = {
             'polymorphic_identity': 'user',
             'polymorphic_on': type
         }
+
+    Here is an example of an inherited model for an AdminUser
+
+        class AdminUser(User):
+            __tablename__ = 'adminuser'
+            __mapper_args__ = {
+                'polymorphic_identity': 'admin'
+            }
+            id = \
+                db.Column(
+                    db.CHAR(32),
+                    db.ForeignKey('user.id'),
+                    primary_key=True)
     """
 
     email = None
     password = None
     active = None
+    real = None
     type = None
 
     def is_admin(self):
@@ -63,6 +82,15 @@ class AuthUserMixin(object):
         Determines if user is an admin
         """
         return (self.type == "admin")
+
+    def is_real(self):
+        """
+        Determines of user is a real user.
+        The opposite of a real user is
+        an anon user, which is a user
+        with no email and no password.
+        """
+        return self.real
 
     def is_authenticated(self):
         """

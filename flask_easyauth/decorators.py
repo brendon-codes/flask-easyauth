@@ -21,6 +21,30 @@ _auth = LocalProxy(lambda: current_app.extensions['easyauth'])
 # pylint: enable=invalid-name
 
 
+def real_required(func):
+    """
+    Ensures that user is a real.
+    A real user is the opposite of an
+    anon user.
+    """
+
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+        """
+        Decorated class view
+        """
+        ## No Good
+        if (
+            (not current_user.is_authenticated()) or
+            (not current_user.is_real())
+        ):
+            return _auth.login_manager.unauthorized()
+        ## Return success
+        return func(*args, **kwargs)
+
+    return decorated_view
+
+
 def admin_required(func):
     """
     Ensures that user is an admin

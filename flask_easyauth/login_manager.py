@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Provides Base Model
+Provides Base Login Manager
 """
 
 from __future__ import absolute_import
