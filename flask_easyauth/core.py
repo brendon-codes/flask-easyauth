@@ -19,6 +19,7 @@ from flask.ext.login import (
 
 from .token_redis_session import TokenRedisSessionInterface
 from .login_manager import AuthLoginManager
+from .constants import REQ_TOK_TYPES
 
 
 # pylint: disable=invalid-name
@@ -36,8 +37,16 @@ class Auth(object):
     login_manager = None
     user_cls = None
     token_cls = None
+    req_tok_type = None
 
-    def __init__(self, app=None, db=None, user_cls=None, token_cls=None):
+    def __init__(
+            self,
+            app=None,
+            db=None,
+            user_cls=None,
+            token_cls=None,
+            req_tok_type=None
+    ):
         """
         Constructor
         """
@@ -45,19 +54,22 @@ class Auth(object):
         self.db = db
         self.user_cls = user_cls
         self.token_cls = token_cls
+        self.req_tok_type = req_tok_type
         if (
             (app is not None) and
             (db is not None) and
             (user_cls is not None) and
             (token_cls is not None)
         ):
-            self.init_app(app, db, user_cls, token_cls)
+            self.init_app(app, db, user_cls, token_cls, req_tok_type)
         return None
 
-    def init_app(self, app, db, user_cls, token_cls):
+    def init_app(self, app, db, user_cls, token_cls, req_tok_type=None):
         """
         Initiate this application
         """
+        if req_tok_type is None:
+            req_tok_type = REQ_TOK_TYPES['header']
         ## Initialize app
         self.app = app
         self.app.session_interface = TokenRedisSessionInterface(self.app)
@@ -66,9 +78,16 @@ class Auth(object):
         ## Setup models
         self.user_cls = user_cls
         self.token_cls = token_cls
+        self.req_tok_type = req_tok_type
         ## Setup login manager
         self.login_manager = \
-            AuthLoginManager(self.app, self.db, self.user_cls, self.token_cls)
+            AuthLoginManager(
+                app=self.app,
+                db=self.db,
+                user_cls=self.user_cls,
+                token_cls=self.token_cls,
+                req_tok_type=self.req_tok_type
+            )
         ## Add to extensions
         self.app.extensions['easyauth'] = self
         return True
