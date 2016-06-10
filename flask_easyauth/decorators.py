@@ -35,8 +35,8 @@ def real_required(func):
         """
         ## No Good
         if (
-            (not current_user.is_authenticated()) or
-            (not current_user.is_real())
+                (not current_user.is_authenticated()) or
+                (not current_user.is_real())
         ):
             return _auth.login_manager.unauthorized()
         ## Return success
@@ -57,8 +57,8 @@ def admin_required(func):
         """
         ## No Good
         if (
-            (not current_user.is_authenticated()) or
-            (not current_user.is_admin())
+                (not current_user.is_authenticated()) or
+                (not current_user.is_admin())
         ):
             return _auth.login_manager.unauthorized()
         ## Return success
@@ -84,11 +84,11 @@ def user_types_required(*types):
             """
             ## No Good
             if (
-                (current_user.type != constants.ADMIN_USER_TYPE) and
-                (
-                    (not current_user.is_authenticated()) or
-                    (current_user.type not in types)
-                )
+                    (current_user.type != constants.ADMIN_USER_TYPE) and
+                    (
+                        (not current_user.is_authenticated()) or
+                        (current_user.type not in types)
+                    )
             ):
                 return _auth.login_manager.unauthorized()
             ## Return success
