@@ -14,13 +14,13 @@ from werkzeug.local import LocalProxy
 # pylint: disable=no-name-in-module
 from flask.ext.login import (
     login_user,
-    logout_user)
+    logout_user
+)
 # pylint: enable=no-name-in-module
 
 from .token_redis_session import TokenRedisSessionInterface
 from .login_manager import AuthLoginManager
 from .constants import REQ_TOK_TYPES
-
 
 # pylint: disable=invalid-name
 _auth = LocalProxy(lambda: current_app.extensions['easyauth'])
@@ -44,8 +44,7 @@ class Auth(object):
             app=None,
             db=None,
             user_cls=None,
-            token_cls=None,
-            req_tok_type=None
+            token_cls=None
     ):
         """
         Constructor
@@ -54,22 +53,20 @@ class Auth(object):
         self.db = db
         self.user_cls = user_cls
         self.token_cls = token_cls
-        self.req_tok_type = req_tok_type
+        self.req_tok_type = app.config.get('AUTH_TOKEN_TYPE', None)
         if (
-            (app is not None) and
-            (db is not None) and
-            (user_cls is not None) and
-            (token_cls is not None)
+                (app is not None) and
+                (db is not None) and
+                (user_cls is not None) and
+                (token_cls is not None)
         ):
-            self.init_app(app, db, user_cls, token_cls, req_tok_type)
+            self.init_app(app, db, user_cls, token_cls)
         return None
 
-    def init_app(self, app, db, user_cls, token_cls, req_tok_type=None):
+    def init_app(self, app, db, user_cls, token_cls):
         """
         Initiate this application
         """
-        if req_tok_type is None:
-            req_tok_type = REQ_TOK_TYPES['header']
         ## Initialize app
         self.app = app
         self.app.session_interface = TokenRedisSessionInterface(self.app)
@@ -78,15 +75,19 @@ class Auth(object):
         ## Setup models
         self.user_cls = user_cls
         self.token_cls = token_cls
-        self.req_tok_type = req_tok_type
+        self.req_tok_type = (
+            app.config.get(
+                'AUTH_TOKEN_TYPE',
+                REQ_TOK_TYPES['header']
+            )
+        )
         ## Setup login manager
         self.login_manager = \
             AuthLoginManager(
                 app=self.app,
                 db=self.db,
                 user_cls=self.user_cls,
-                token_cls=self.token_cls,
-                req_tok_type=self.req_tok_type
+                token_cls=self.token_cls
             )
         ## Add to extensions
         self.app.extensions['easyauth'] = self
@@ -112,7 +113,7 @@ class Auth(object):
         ## Log user in
         login_user(user, remember=False)
         ## Return token
-        return auth_token
+        return True
 
     def logout(self):
         """

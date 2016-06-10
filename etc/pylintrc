@@ -1,8 +1,5 @@
 [MASTER]
 
-## Profiled execution.
-profile=no
-
 # Add files or directories to the blacklist. They should be base names, not
 # paths.
 ignore=CVS,.git,migrations
@@ -34,12 +31,6 @@ persistent=no
 
 msg-template="{path} | {line} | {msg_id} | {symbol} | {obj} | {msg}"
 
-## Include message's id in output
-include-ids=yes
-
-## Include symbolic ids of messages in output
-symbols=yes
-
 ## Put messages in a separate file for each module / package specified on the
 ## command line instead of printing them on stdout. Reports (if any) will be
 ## written in a file name "pylint_global.[txt|html]".
@@ -61,9 +52,6 @@ max-module-lines=10000
 indent-string='    '
 
 [BASIC]
-
-## Required attributes for module, separated by a comma
-required-attributes=absolute_import
 
 ## List of builtins function names that should not be used, separated by a comma
 bad-functions=eval,exec,execfile

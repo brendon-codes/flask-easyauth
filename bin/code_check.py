@@ -9,6 +9,9 @@ from __future__ import absolute_import
 import os
 import sys
 
+from pylint.lint import Run as pylint_run
+import pep8
+
 ROOT = \
     os.path.abspath(
         os.path.join(
@@ -16,10 +19,6 @@ ROOT = \
             '../'))
 os.chdir(ROOT)
 sys.path.append(ROOT)
-
-from pylint.lint import Run as pylint_run
-import pep8
-
 
 PYLINT_RCFILE = os.path.join(ROOT, 'etc', 'pylintrc')
 PEP8_RCFILE = os.path.join(ROOT, 'etc', 'pep8rc')
@@ -32,6 +31,7 @@ CHECK_FILES = [
 PYLINT_DISABLES = [
     'import-error',
     'locally-disabled',
+    'locally-enabled',
     'file-ignored',
     'no-self-use',
     'no-init',
