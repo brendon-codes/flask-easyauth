@@ -11,12 +11,6 @@ from werkzeug.local import LocalProxy
 
 from passlib.apps import custom_app_context as pwd_context
 
-from .constants import (
-    REQ_TOKEN_COOKIE,
-    REQ_TOKEN_HEADER
-)
-
-
 # pylint: disable=invalid-name
 _auth = LocalProxy(lambda: current_app.extensions['easyauth'])
 # pylint: enable=invalid-name
@@ -77,9 +71,6 @@ class AuthUserMixin(object):
                     primary_key=True)
     """
 
-    AUTH_TOK_COOKIE_KEY = REQ_TOKEN_COOKIE
-    AUTH_TOK_HEADER_KEY = REQ_TOKEN_HEADER
-
     email = None
     password = None
     active = None
@@ -126,7 +117,7 @@ class AuthUserMixin(object):
         """
         Get ID
         """
-        return str(self.id)
+        return unicode(self.id)
 
     def verify_password(self, password):
         """

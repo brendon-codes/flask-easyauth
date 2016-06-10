@@ -12,8 +12,10 @@ from flask import session, json, Response
 from flask.ext.login import LoginManager
 # pylint: enable=no-name-in-module
 
-from .constants import REQ_TOK_TYPES
-from . import request_helpers
+from .constants import (
+    REQ_TOKEN_HEADER,
+    REQ_TOK_TYPES
+)
 
 
 class AuthLoginManager(object):
@@ -28,20 +30,17 @@ class AuthLoginManager(object):
     db = None
     req_tok_type = None
 
-    def __init__(self, app, db, user_cls, token_cls):
+    def __init__(self, app, db, user_cls, token_cls, req_tok_type=None):
         """
         Constructor
         """
+        if req_tok_type is None:
+            req_tok_type = REQ_TOK_TYPES['header']
         self.db = db
         self.user_cls = user_cls
         self.token_cls = token_cls
         self.app = app
-        self.req_tok_type = (
-            app.config.get(
-                'AUTH_TOKEN_TYPE',
-                REQ_TOK_TYPES['header']
-            )
-        )
+        self.req_tok_type = req_tok_type
         self.manager = LoginManager()
         self.manager.request_loader(self._load_user_from_request)
         self.manager.user_loader(self._load_user)
@@ -56,6 +55,18 @@ class AuthLoginManager(object):
         """
         return self.manager
 
+    def _get_request_token(self):
+        """
+        Get the request token
+        """
+        if self.req_tok_type == REQ_TOK_TYPES['header']:
+            req_token = request.headers.get(REQ_TOKEN_HEADER, None)
+        elif self.req_tok_type == REQ_TOK_TYPES['cookie']:
+            req_token = request.cookies.get(REQ_TOKEN_COOKIE, None)
+        else:
+            raise Exception("Invalid token type")
+        return req_token
+
     def _load_user_from_request(self, request):
         """
         Callback to load a user from a Flask request object
@@ -64,13 +75,7 @@ class AuthLoginManager(object):
             https://flask-login.readthedocs.org
             /en/latest/#custom-login-using-request-loader
         """
-        req_token = (
-            request_helpers
-            .get_request_token(
-                self.req_tok_type,
-                request
-            )
-        )
+        req_token = self._get_request_token(request)
         if req_token is None:
             return None
         auth_token = self.token_cls.query.filter_by(token=req_token).first()

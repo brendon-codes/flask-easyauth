@@ -20,8 +20,7 @@ from redis import Redis
 from flask.sessions import SessionInterface, SessionMixin
 from werkzeug.datastructures import CallbackDict
 
-from .constants import REQ_TOK_TYPES
-from . import request_helpers
+from .constants import REQ_TOKEN_HEADER
 
 
 class TokenRedisSession(CallbackDict, SessionMixin):
@@ -54,7 +53,6 @@ class TokenRedisSessionInterface(SessionInterface):
     """
     serializer = pickle
     session_class = TokenRedisSession
-    req_tok_type = None
 
     def __init__(self, app, redis=None, prefix='session:'):
         """
@@ -73,12 +71,6 @@ class TokenRedisSessionInterface(SessionInterface):
                     password=redis_pass)
         self.redis = redis
         self.prefix = prefix
-        self.req_tok_type = (
-            app.config.get(
-                'AUTH_TOKEN_TYPE',
-                REQ_TOK_TYPES['header']
-            )
-        )
         return None
 
     def generate_sid(self):
@@ -99,13 +91,7 @@ class TokenRedisSessionInterface(SessionInterface):
         """
         Open Session
         """
-        sid = (
-            request_helpers
-            .get_request_token(
-                self.req_tok_type,
-                request
-            )
-        )
+        sid = request.headers.get(REQ_TOKEN_HEADER, None)
         if sid is None:
             sid = self.generate_sid()
             return self.session_class(sid=sid, new=True)
@@ -123,11 +109,8 @@ class TokenRedisSessionInterface(SessionInterface):
             self.redis.delete(self.prefix + sess.sid)
             return None
         redis_exp = self.get_redis_expiration_time(app, sess)
-        #cookie_exp = self.get_expiration_time(app, sess)
+        cookie_exp = self.get_expiration_time(app, sess)
         val = self.serializer.dumps(dict(sess))
-        self.redis.setex(
-            self.prefix + sess.sid,
-            val,
-            int(redis_exp.total_seconds())
-        )
+        self.redis.setex(self.prefix + sess.sid, val,
+                         int(redis_exp.total_seconds()))
         return None
